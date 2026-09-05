@@ -1,0 +1,183 @@
+{
+  "document_id": "sample-team-notes-v1",
+  "filename": "team-notes-prd.pdf",
+  "pages": [
+    {
+      "number": 1,
+      "text": "TEAM NOTES / PRODUCT REQUIREMENTS 1 / 3\nProduct overview\nTeam Notes is a small, single-workspace application for an internal team to capture and retrieve short\nnotes. The first release runs locally and is not exposed to the public internet.\nCreate a note\nUsers can create a note with a title and body. The title must contain 1 to 120 characters after trimming.\nThe body must contain 1 to 5,000 characters after trimming. A successful create returns the saved\nnote and its identifier.\nBrowse notes\nUsers can see all active notes ordered by most recently updated first. Each result shows its title and\nupdated timestamp. When no active notes exist, the interface shows an empty state with a create\naction.\nRead and edit\nUsers can open an active note and edit its title and body. Edits update the updated timestamp while\npreserving the creation timestamp. The same title and body limits apply to editing.\nSynthetic test fixture. Authored for AI Engineering Planner; no external source material.",
+      "native_text": "TEAM NOTES / PRODUCT REQUIREMENTS 1 / 3\nProduct overview\nTeam Notes is a small, single-workspace application for an internal team to capture and retrieve short\nnotes. The first release runs locally and is not exposed to the public internet.\nCreate a note\nUsers can create a note with a title and body. The title must contain 1 to 120 characters after trimming.\nThe body must contain 1 to 5,000 characters after trimming. A successful create returns the saved\nnote and its identifier.\nBrowse notes\nUsers can see all active notes ordered by most recently updated first. Each result shows its title and\nupdated timestamp. When no active notes exist, the interface shows an empty state with a create\naction.\nRead and edit\nUsers can open an active note and edit its title and body. Edits update the updated timestamp while\npreserving the creation timestamp. The same title and body limits apply to editing.\nSynthetic test fixture. Authored for AI Engineering Planner; no external source material.",
+      "method": "native",
+      "warnings": []
+    },
+    {
+      "number": 2,
+      "text": "TEAM NOTES / PRODUCT REQUIREMENTS 2 / 3\nArchive\nUsers can archive a note. Archived notes disappear from the active list and search results. Looking up\nan archived note by its identifier returns the same 404 response as a missing note.\nSearch\nUsers can search active note titles and bodies without case sensitivity. Blank queries show the active\nnote list. Product has not yet decided how a query containing multiple words should match.\nError contract\nInvalid titles and bodies return HTTP 422 with a JSON errors array containing field and message.\nMissing or archived note identifiers return HTTP 404 with a JSON error message. The interface\ndisplays field errors next to their corresponding inputs.\nSynthetic test fixture. Authored for AI Engineering Planner; no external source material.",
+      "native_text": "TEAM NOTES / PRODUCT REQUIREMENTS 2 / 3\nArchive\nUsers can archive a note. Archived notes disappear from the active list and search results. Looking up\nan archived note by its identifier returns the same 404 response as a missing note.\nSearch\nUsers can search active note titles and bodies without case sensitivity. Blank queries show the active\nnote list. Product has not yet decided how a query containing multiple words should match.\nError contract\nInvalid titles and bodies return HTTP 422 with a JSON errors array containing field and message.\nMissing or archived note identifiers return HTTP 404 with a JSON error message. The interface\ndisplays field errors next to their corresponding inputs.\nSynthetic test fixture. Authored for AI Engineering Planner; no external source material.",
+      "method": "native",
+      "warnings": []
+    },
+    {
+      "number": 3,
+      "text": "TEAM NOTES / PRODUCT REQUIREMENTS 3 / 3\nPersistence\nUse SQLite to persist notes, their archive state, and created and updated timestamps. Saved changes\nmust remain available after the application restarts.\nInteraction quality\nThe interface must support keyboard-only creation, browsing, editing, search and archiving. Show a\nsaving state while changes are in progress and a recoverable error state if a request fails.\nExcluded from release one\nUser accounts, authentication, public deployment, sharing links, real-time collaboration, attachments,\nrich-text editing, archive recovery and permanent deletion are out of scope for this release.\nSynthetic test fixture. Authored for AI Engineering Planner; no external source material.",
+      "native_text": "TEAM NOTES / PRODUCT REQUIREMENTS 3 / 3\nPersistence\nUse SQLite to persist notes, their archive state, and created and updated timestamps. Saved changes\nmust remain available after the application restarts.\nInteraction quality\nThe interface must support keyboard-only creation, browsing, editing, search and archiving. Show a\nsaving state while changes are in progress and a recoverable error state if a request fails.\nExcluded from release one\nUser accounts, authentication, public deployment, sharing links, real-time collaboration, attachments,\nrich-text editing, archive recovery and permanent deletion are out of scope for this release.\nSynthetic test fixture. Authored for AI Engineering Planner; no external source material.",
+      "method": "native",
+      "warnings": []
+    }
+  ],
+  "document": {
+    "title": "Team Notes",
+    "summary": "A local, single-workspace notes application with durable storage, search and archiving.",
+    "requirements": [
+      {
+        "id": "R-001",
+        "title": "Create a valid note",
+        "description": "Users can create a note with a title and body. The title must contain 1 to 120 characters after trimming. The body must contain 1 to 5,000 characters after trimming. A successful create returns the saved note and its identifier.",
+        "kind": "functional",
+        "acceptance_criteria": [
+          "Trim and validate titles to 1–120 characters and bodies to 1–5,000 characters.",
+          "Successful creation returns the persisted note and identifier."
+        ],
+        "evidence": [
+          {
+            "page": 1,
+            "quote": "Users can create a note with a title and body."
+          }
+        ]
+      },
+      {
+        "id": "R-002",
+        "title": "Browse active notes",
+        "description": "Users can see all active notes ordered by most recently updated first. Each result shows its title and updated timestamp. When no active notes exist, the interface shows an empty state with a create action.",
+        "kind": "functional",
+        "acceptance_criteria": [
+          "List active notes by most recently updated first.",
+          "Show a create action in the empty state."
+        ],
+        "evidence": [
+          {
+            "page": 1,
+            "quote": "Users can see all active notes ordered by most recently updated first."
+          }
+        ]
+      },
+      {
+        "id": "R-003",
+        "title": "Read and edit notes",
+        "description": "Users can open an active note and edit its title and body. Edits update the updated timestamp while preserving the creation timestamp. The same title and body limits apply to editing.",
+        "kind": "functional",
+        "acceptance_criteria": [
+          "Editing preserves created_at and updates updated_at.",
+          "Use the create-field limits for edits."
+        ],
+        "evidence": [
+          {
+            "page": 1,
+            "quote": "Users can open an active note and edit its title and body."
+          }
+        ]
+      },
+      {
+        "id": "R-004",
+        "title": "Archive without exposing archived notes",
+        "description": "Users can archive a note. Archived notes disappear from the active list and search results. Looking up an archived note by its identifier returns the same 404 response as a missing note.",
+        "kind": "functional",
+        "acceptance_criteria": [
+          "Archived notes disappear from active lists and search.",
+          "Archived and missing identifiers return the same 404 shape."
+        ],
+        "evidence": [
+          {
+            "page": 2,
+            "quote": "Users can archive a note."
+          }
+        ]
+      },
+      {
+        "id": "R-005",
+        "title": "Search active notes",
+        "description": "Users can search active note titles and bodies without case sensitivity. Blank queries show the active note list. Product has not yet decided how a query containing multiple words should match.",
+        "kind": "functional",
+        "acceptance_criteria": [
+          "Search titles and bodies case-insensitively.",
+          "An empty query returns the active list; archived notes never appear."
+        ],
+        "evidence": [
+          {
+            "page": 2,
+            "quote": "Users can search active note titles and bodies without case sensitivity."
+          }
+        ]
+      },
+      {
+        "id": "R-006",
+        "title": "Return and display structured errors",
+        "description": "Invalid titles and bodies return HTTP 422 with a JSON errors array containing field and message. Missing or archived note identifiers return HTTP 404 with a JSON error message. The interface displays field errors next to their corresponding inputs.",
+        "kind": "functional",
+        "acceptance_criteria": [
+          "Invalid fields return 422 with field/message entries in errors.",
+          "Display field errors beside the corresponding controls."
+        ],
+        "evidence": [
+          {
+            "page": 2,
+            "quote": "Invalid titles and bodies return HTTP 422 with a JSON errors array containing field and message."
+          }
+        ]
+      },
+      {
+        "id": "R-007",
+        "title": "Persist notes across restarts",
+        "description": "Use SQLite to persist notes, their archive state, and created and updated timestamps. Saved changes must remain available after the application restarts.",
+        "kind": "constraint",
+        "acceptance_criteria": [
+          "SQLite retains note content, timestamps and archive state after a restart."
+        ],
+        "evidence": [
+          {
+            "page": 3,
+            "quote": "Use SQLite to persist notes, their archive state, and created and updated timestamps."
+          }
+        ]
+      },
+      {
+        "id": "R-008",
+        "title": "Support keyboard operation and recovery",
+        "description": "The interface must support keyboard-only creation, browsing, editing, search and archiving. Show a saving state while changes are in progress and a recoverable error state if a request fails.",
+        "kind": "non_functional",
+        "acceptance_criteria": [
+          "All primary actions work using only the keyboard.",
+          "Show saving and recoverable request-error states."
+        ],
+        "evidence": [
+          {
+            "page": 3,
+            "quote": "The interface must support keyboard-only creation, browsing, editing, search and archiving."
+          }
+        ]
+      }
+    ],
+    "questions": [
+      {
+        "id": "Q-001",
+        "question": "How should queries containing multiple words match: an exact phrase, all words, or any word?",
+        "why_it_matters": "The PRD explicitly leaves multi-word matching undecided. Search implementation and its acceptance tests depend on the answer.",
+        "requirement_ids": [
+          "R-005"
+        ],
+        "blocking": true
+      }
+    ],
+    "out_of_scope": [
+      "User accounts, authentication, public deployment, sharing links, real-time collaboration, attachments, rich-text editing, archive recovery and permanent deletion are out of scope for this release."
+    ]
+  },
+  "warnings": [
+    "Illustrative sample: review the intentionally unresolved search decision."
+  ],
+  "usage": {
+    "calls": 0,
+    "input_tokens": 0,
+    "output_tokens": 0
+  },
+  "mode": "sample"
+}

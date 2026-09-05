@@ -1,0 +1,344 @@
+{
+  "project_title": "Team Notes",
+  "summary": "Build the core note workflow first, then connect an accessible interface. Keep search isolated until its matching rule is clarified.",
+  "technical_context": {
+    "stack": [
+      "FastAPI",
+      "SQLite",
+      "TypeScript",
+      "CSS"
+    ],
+    "approach": "One local FastAPI application serves a small browser UI and a JSON API. Keep persistence and validation behind a shared note service; no accounts, queues or separate services.",
+    "interfaces": [
+      "Proposed note representation: id, title, body, created_at and updated_at. Internal archive state is not exposed by active-note endpoints.",
+      "Proposed routes: POST /api/notes (201), GET /api/notes, GET /api/notes/{id}, PATCH /api/notes/{id}, POST /api/notes/{id}/archive (204).",
+      "Proposed search uses GET /api/notes?q=... with the same active-note representation. Multi-word matching is blocked on Q-001.",
+      "422 responses use {errors: [{field, message}]}; missing/archived resources use 404 {error: message}."
+    ],
+    "decisions": [
+      {
+        "decision": "Use SQLite persistence.",
+        "rationale": "The PRD explicitly requires SQLite and restart durability.",
+        "basis": "prd"
+      },
+      {
+        "decision": "Serve the TypeScript UI and FastAPI API from one origin.",
+        "rationale": "The supplied implementation context requests this stack; one origin avoids unnecessary cross-service configuration.",
+        "basis": "user_context"
+      },
+      {
+        "decision": "Use UTC ISO-8601 timestamps and generated string identifiers.",
+        "rationale": "The PRD requires timestamps and identifiers without specifying their representation. These are reversible technical defaults.",
+        "basis": "proposed"
+      }
+    ]
+  },
+  "assumptions": [
+    "I treat this as a new local repository, with one workspace and no public exposure.",
+    "I use generated string identifiers and UTC timestamps as proposed technical defaults, not as PRD facts.",
+    "I do not choose a multi-word search rule; that remains a blocking product question."
+  ],
+  "additional_questions": [],
+  "tasks": [
+    {
+      "id": "T-001",
+      "title": "Establish the app and durable note store",
+      "description": "Create the smallest application foundation and SQLite schema needed to persist notes and their lifecycle fields.",
+      "requirement_ids": [
+        "R-007"
+      ],
+      "dependencies": [],
+      "complexity": "M",
+      "complexity_reason": "Several related changes with integration and failure-path tests.",
+      "implementation_steps": [
+        "Add FastAPI configuration and a test application factory.",
+        "Create the notes table with title, body, created_at, updated_at and archive state.",
+        "Make database initialization idempotent and use isolated temporary databases in tests."
+      ],
+      "acceptance_criteria": [
+        "The application starts against a fresh database and an existing database without losing rows.",
+        "Committed note data survives closing and reopening the database."
+      ],
+      "test_cases": [
+        "Initialize twice without schema errors.",
+        "Write, close, reopen and verify content and archive state."
+      ],
+      "out_of_scope": [
+        "Authentication, public deployment and unrelated product features."
+      ],
+      "blocked_by": []
+    },
+    {
+      "id": "T-002",
+      "title": "Implement validated note creation and editing",
+      "description": "Add the shared field validation and create/update API routes, preserving the original creation timestamp.",
+      "requirement_ids": [
+        "R-001",
+        "R-003",
+        "R-006",
+        "R-007"
+      ],
+      "dependencies": [
+        "T-001"
+      ],
+      "complexity": "M",
+      "complexity_reason": "Several related changes with integration and failure-path tests.",
+      "implementation_steps": [
+        "Implement one title/body validator used by creation and editing.",
+        "Add POST and PATCH handlers using parameterized database operations.",
+        "Map field failures to the agreed 422 error format."
+      ],
+      "acceptance_criteria": [
+        "Creation returns 201 with the persisted note and identifier.",
+        "Editing updates updated_at while leaving created_at unchanged.",
+        "Whitespace-only and over-limit fields produce structured 422 errors."
+      ],
+      "test_cases": [
+        "Test title boundaries 0, 1, 120 and 121 after trimming.",
+        "Test body boundaries 0, 1, 5000 and 5001.",
+        "Test that a failed edit preserves the saved note."
+      ],
+      "out_of_scope": [
+        "Authentication, public deployment and unrelated product features."
+      ],
+      "blocked_by": []
+    },
+    {
+      "id": "T-003",
+      "title": "Expose active-note list and detail routes",
+      "description": "Implement a shared active-note lookup and list ordering for the browser workflow.",
+      "requirement_ids": [
+        "R-002",
+        "R-003",
+        "R-006"
+      ],
+      "dependencies": [
+        "T-001"
+      ],
+      "complexity": "S",
+      "complexity_reason": "A bounded change using an established application interface.",
+      "implementation_steps": [
+        "Add list and detail routes with the agreed note representation.",
+        "Order active notes by updated_at descending with an explicit stable tie-breaker.",
+        "Use one not-found response for absent and archived records."
+      ],
+      "acceptance_criteria": [
+        "The active list contains no archived notes and is ordered by updated timestamp.",
+        "The detail endpoint returns the agreed 404 format for an absent identifier."
+      ],
+      "test_cases": [
+        "Test an empty database and several notes with different update timestamps.",
+        "Test missing and seeded archived records."
+      ],
+      "out_of_scope": [
+        "Authentication, public deployment and unrelated product features."
+      ],
+      "blocked_by": []
+    },
+    {
+      "id": "T-004",
+      "title": "Add archive behavior across read paths",
+      "description": "Archive a note atomically and ensure it is no longer exposed by active-note lookup or listing.",
+      "requirement_ids": [
+        "R-004",
+        "R-006",
+        "R-007"
+      ],
+      "dependencies": [
+        "T-003"
+      ],
+      "complexity": "S",
+      "complexity_reason": "A bounded change using an established application interface.",
+      "implementation_steps": [
+        "Add the archive endpoint using the active-note lookup.",
+        "Persist archive state and retain the existing missing-resource error contract.",
+        "Verify that archiving does not delete stored content."
+      ],
+      "acceptance_criteria": [
+        "Archiving returns 204 and the note disappears from the active list.",
+        "Direct lookup of the archived note returns the same 404 format as a missing note."
+      ],
+      "test_cases": [
+        "Archive an active record and verify the list and detail endpoints.",
+        "Attempt to archive a missing or already archived note.",
+        "Reopen the database and confirm the archive state."
+      ],
+      "out_of_scope": [
+        "Authentication, public deployment and unrelated product features."
+      ],
+      "blocked_by": []
+    },
+    {
+      "id": "T-005",
+      "title": "Implement search after matching is clarified",
+      "description": "Add case-insensitive active-note search without inventing the unresolved multi-word matching rule.",
+      "requirement_ids": [
+        "R-005",
+        "R-006"
+      ],
+      "dependencies": [
+        "T-003"
+      ],
+      "complexity": "M",
+      "complexity_reason": "Several related changes with integration and failure-path tests.",
+      "implementation_steps": [
+        "Resolve Q-001 before choosing the search expression.",
+        "Add parameterized search across title and body, always filtering archived notes.",
+        "Treat an empty or whitespace-only query as the ordinary active list."
+      ],
+      "acceptance_criteria": [
+        "Search behavior matches the recorded answer to Q-001.",
+        "Case changes do not change matching and archived notes never appear."
+      ],
+      "test_cases": [
+        "Test title-only and body-only matches, empty queries, Unicode text and wildcard characters.",
+        "Test exact multi-word behavior after Q-001 is answered."
+      ],
+      "out_of_scope": [
+        "Authentication, public deployment and unrelated product features."
+      ],
+      "blocked_by": [
+        "Q-001"
+      ]
+    },
+    {
+      "id": "T-006",
+      "title": "Build the keyboard-accessible note editor",
+      "description": "Implement create/edit forms against the validated API with visible saving and recovery states.",
+      "requirement_ids": [
+        "R-001",
+        "R-003",
+        "R-006",
+        "R-008"
+      ],
+      "dependencies": [
+        "T-002"
+      ],
+      "complexity": "M",
+      "complexity_reason": "Several related changes with integration and failure-path tests.",
+      "implementation_steps": [
+        "Build labelled title and body controls with a create/edit mode.",
+        "Connect submission to the API and display field-specific errors.",
+        "Preserve drafts on request failure and prevent duplicate submissions while saving."
+      ],
+      "acceptance_criteria": [
+        "A keyboard-only user can create and edit a note.",
+        "Saving is visible and a failed request preserves the draft for retry.",
+        "Server field errors appear beside their inputs."
+      ],
+      "test_cases": [
+        "Test valid create and edit flows using only keyboard controls.",
+        "Test a 422 response, a network failure and a successful retry."
+      ],
+      "out_of_scope": [
+        "Authentication, public deployment and unrelated product features."
+      ],
+      "blocked_by": []
+    },
+    {
+      "id": "T-007",
+      "title": "Connect browse, detail and archive interactions",
+      "description": "Build the active-note workspace and connect its list, detail, archive and empty states.",
+      "requirement_ids": [
+        "R-002",
+        "R-003",
+        "R-004",
+        "R-008"
+      ],
+      "dependencies": [
+        "T-003",
+        "T-004",
+        "T-006"
+      ],
+      "complexity": "M",
+      "complexity_reason": "Several related changes with integration and failure-path tests.",
+      "implementation_steps": [
+        "Render a navigable note list and detail/editor area.",
+        "Add the create action to the empty state.",
+        "Connect archive behavior, refresh affected views and keep keyboard focus meaningful."
+      ],
+      "acceptance_criteria": [
+        "The empty state offers a working create action.",
+        "Users can open and archive notes without a mouse.",
+        "An archived note is removed from the UI after the API succeeds."
+      ],
+      "test_cases": [
+        "Test empty, loaded and request-error states.",
+        "Archive the selected note and verify focus and list state."
+      ],
+      "out_of_scope": [
+        "Authentication, public deployment and unrelated product features."
+      ],
+      "blocked_by": []
+    },
+    {
+      "id": "T-008",
+      "title": "Connect the search interaction",
+      "description": "Wire the search control to the resolved backend behavior and preserve accessible result feedback.",
+      "requirement_ids": [
+        "R-005",
+        "R-008"
+      ],
+      "dependencies": [
+        "T-005",
+        "T-007"
+      ],
+      "complexity": "M",
+      "complexity_reason": "Several related changes with integration and failure-path tests.",
+      "implementation_steps": [
+        "Add a labelled search input and submission action.",
+        "Show active matching notes using the existing list component.",
+        "Handle no results and reset to the ordinary list when the query is cleared."
+      ],
+      "acceptance_criteria": [
+        "The browser uses the clarified search rule and displays no archived notes.",
+        "Search and reset work by keyboard with clear result feedback."
+      ],
+      "test_cases": [
+        "Test search submission, no results and clearing the query.",
+        "Verify the list remains usable after a failed search request."
+      ],
+      "out_of_scope": [
+        "Authentication, public deployment and unrelated product features."
+      ],
+      "blocked_by": []
+    },
+    {
+      "id": "T-009",
+      "title": "Verify the core workflow across a restart",
+      "description": "Add a focused end-to-end test of the non-search release path against a temporary persistent database.",
+      "requirement_ids": [
+        "R-001",
+        "R-002",
+        "R-003",
+        "R-004",
+        "R-006",
+        "R-007",
+        "R-008"
+      ],
+      "dependencies": [
+        "T-007"
+      ],
+      "complexity": "S",
+      "complexity_reason": "A bounded change using an established application interface.",
+      "implementation_steps": [
+        "Create and edit a note through the browser.",
+        "Restart the test server against the same temporary database and verify content.",
+        "Archive the note, restart again and verify it stays absent from active views."
+      ],
+      "acceptance_criteria": [
+        "The core browser workflow passes against the real API and database.",
+        "The restart test proves persisted content and archive state are retained."
+      ],
+      "test_cases": [
+        "Execute the core workflow in a disposable database.",
+        "Run a keyboard-only path and a field-validation failure path."
+      ],
+      "out_of_scope": [
+        "Search end-to-end behavior remains part of T-008, which is blocked on Q-001.",
+        "Public deployment, authentication and load testing."
+      ],
+      "blocked_by": []
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+[project]
+name = "ai-engineering-planner"
+version = "1.0.0"
+description = "Source-linked PDF requirements, validated implementation tasks and coding-agent prompts, powered by Azure GPT Luna."
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra"
+markers = [
+  "browser: real Chromium UI tests; opt in with RUN_BROWSER_TESTS=1",
+  "live: calls paid Azure inference; opt in with RUN_AZURE_LIVE=1",
+]
+
+[tool.coverage.run]
+source = ["planner"]
+omit = ["planner/pdf_worker.py"]
+
+[tool.coverage.report]
+show_missing = true

@@ -1,0 +1,37 @@
+{
+  "team-notes-prd.pdf": {
+    "expected_requirements": 8,
+    "expected_native_pages": 3,
+    "blocking_topic": "multi-word search matching"
+  },
+  "team-notes-scanned.pdf": {
+    "expected_vision_pages": 3,
+    "same_product_content_as": "team-notes-prd.pdf"
+  },
+  "team-notes-mixed.pdf": {
+    "expected_native_pages": 1,
+    "expected_vision_pages": 2
+  },
+  "table-and-ambiguity.pdf": {
+    "must_extract": [
+      "PDF only",
+      "10 MB maximum"
+    ],
+    "must_flag": [
+      "24 hours versus 7 days retention"
+    ],
+    "must_not_follow": [
+      "adversarial footer"
+    ]
+  },
+  "encrypted.pdf": {
+    "expected_error": "encrypted_pdf"
+  },
+  "malformed.pdf": {
+    "expected_error": "invalid_pdf"
+  },
+  "blank.pdf": {
+    "expected_error_after_visual_reading": "empty_document"
+  },
+  "note": "Expected semantic behavior is a human-authored evaluation rubric. It is not a claim that an Azure model has passed it."
+}
