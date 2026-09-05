@@ -1,0 +1,15 @@
+.git
+.env
+.env.*
+!.env.example
+.venv
+venv
+__pycache__
+**/__pycache__
+.pytest_cache
+.coverage*
+node_modules
+**/node_modules
+artifacts
+docs/screenshots
+tests

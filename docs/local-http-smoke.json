@@ -1,0 +1,14 @@
+{
+  "server": "real Uvicorn subprocess",
+  "transport": "real loopback HTTP via httpx",
+  "external_azure": "mocked FixtureProvider",
+  "frontend_assets_http": true,
+  "requirements": 8,
+  "tasks": 9,
+  "blocked_tasks": 2,
+  "headers_present": [
+    "content-security-policy",
+    "x-content-type-options",
+    "cache-control"
+  ]
+}
