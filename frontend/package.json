@@ -1,0 +1,11 @@
+{
+  "name": "ai-engineering-planner-ui",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node build.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {"typescript": "5.8.3"}
+}

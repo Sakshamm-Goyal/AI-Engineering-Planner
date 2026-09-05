@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#173e35">
+  <meta name="description" content="Turn product requirements into source-linked engineering tasks and coding-agent prompts.">
+  <title>AI Engineering Planner</title>
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/styles.css">
+  <script type="module" src="/assets/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to workspace</a>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="/" aria-label="AI Engineering Planner home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>ENGINEERING<br><strong>PLANNER</strong></span></a>
+      <span class="sidebar-label">YOUR WORKSPACE</span>
+      <button class="new-plan" data-action="new"><span aria-hidden="true">＋</span> New implementation plan</button>
+      <div class="sidebar-rule"></div>
+      <span class="sidebar-label">FROM SPEC TO EXECUTION</span>
+      <nav id="steps" aria-label="Planning steps"></nav>
+      <div class="sidebar-note"><span class="small-star" aria-hidden="true">✳</span><h3>Every task has a reason.</h3><p>Keep requirements, decisions and implementation in the same conversation.</p></div>
+      <div class="sidebar-bottom"><span class="status-dot"></span> Local workspace <span class="version">v1.0</span><p>No saved document history.</p></div>
+    </aside>
+    <div class="workspace">
+      <header class="topbar"><div><span class="muted">WORKSPACE</span><span class="slash">/</span><span id="breadcrumb">NEW PLAN</span></div><div id="connection" class="connection">Checking configuration…</div></header>
+      <main id="main" tabindex="-1"><div id="root"><div class="initial-loading">Opening your workspace…</div></div></main>
+      <footer class="workspace-footer"><span>Clear scope. Explicit decisions. Verifiable work.</span><span>Built for coding agents. Reviewed by you.</span></footer>
+    </div>
+  </div>
+  <dialog id="source-dialog" aria-labelledby="source-title"><div id="source-content"></div></dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <noscript>This application needs JavaScript. The backend API remains available at /api/health.</noscript>
+</body>
+</html>
