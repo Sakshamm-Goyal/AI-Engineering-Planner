@@ -40,7 +40,7 @@ class Requirement(Model):
     title: ShortText
     description: Text
     kind: Literal["functional", "non_functional", "constraint"]
-    acceptance_criteria: list[Text] = Field(min_length=1, max_length=10)
+    acceptance_criteria: list[Text] = Field(min_length=1)
     evidence: list[Evidence] = Field(min_length=1, max_length=8)
 
 
@@ -116,8 +116,8 @@ class TaskDraft(Model):
     release_target: ShortText = "Unscheduled"
     priority: Literal["must", "should", "could", "unspecified"] = "unspecified"
     implementation_steps: list[Text] = Field(min_length=1, max_length=10)
-    acceptance_criteria: list[Text] = Field(min_length=1, max_length=12)
-    test_cases: list[Text] = Field(min_length=1, max_length=12)
+    acceptance_criteria: list[Text] = Field(min_length=1)
+    test_cases: list[Text] = Field(min_length=1)
     out_of_scope: list[Text] = Field(max_length=12)
     blocked_by: list[Identifier] = Field(max_length=30)
 
